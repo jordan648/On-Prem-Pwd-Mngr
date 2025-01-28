@@ -4,9 +4,22 @@ from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.backends import default_backend
 import os
 import base64
+import json
+import string
+import secrets
+from cryptography.fernet import Fernet
+import string
+import random
 
+def generate_password(length=16, use_special_chars=True):
+    characters = string.ascii_letters
+    if use_numbers:
+        characters += string.digits
+    if use_special_chars:
+        characters += string.punctuation
+    password = ''.join(secrets.choice(characters) for i in range(length))
+    return password
 
-# Generate a random salt
 def generate_salt():
     return os.urandom(16)
 
@@ -67,7 +80,6 @@ def main():
         salt = generate_salt()
         key = derive_key(master_password, salt)
 
-    # Menu
     while True:
         print("\nMenu:")
         print("1. Add a new credential")
@@ -79,7 +91,10 @@ def main():
             # Add a new credential
             service = input("Enter service name: ")
             username = input("Enter username: ")
-            password = generate_password()
+            password_length = input("Enter password length (default 16): ")
+            use_special_chars = input("Use special characters? (y/n): ").lower() == "y"
+            use_numbers = input("Use numbers? (y/n): ").lower() == "y"
+            password = generate_password(password_length, use_special_chars, use_numbers)
             print(f"Generated password for {service}: {password}")
             credentials[service] = {"username": username, "password": password}
 
@@ -94,3 +109,6 @@ def main():
             save_data(file_path, salt, encrypted_data)
             print("Data saved securely. Goodbye!")
             break
+
+if __name__ == "__main__":
+    main()
